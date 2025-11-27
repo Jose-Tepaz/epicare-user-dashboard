@@ -56,10 +56,19 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  const path = request.nextUrl.pathname
+
+  // Permitir acceso a set-password y complete-profile
+  // set-password puede ser accedido sin usuario si viene de una invitación (tokens en sessionStorage)
+  if (path === '/set-password' || path === '/complete-profile') {
+    // Siempre permitir acceso - la página verificará si hay sesión o tokens
+    return response
+  }
+
   // Si no está autenticado y no está en páginas de auth, redirigir al login
-  if (!user && !request.nextUrl.pathname.startsWith('/auth') && !request.nextUrl.pathname.startsWith('/login')) {
+  if (!user && !path.startsWith('/auth') && !path.startsWith('/login')) {
     const redirectUrl = new URL('/login', request.url)
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+    redirectUrl.searchParams.set('redirect', path)
     return NextResponse.redirect(redirectUrl)
   }
 

@@ -7,6 +7,61 @@
 // TIPOS BASE DE SUPABASE
 // ============================================
 
+// Support Tickets
+export type TicketStatus = 
+  | 'open' 
+  | 'in_progress' 
+  | 'waiting_on_customer' 
+  | 'resolved' 
+  | 'closed' 
+  | 'cancelled'
+
+export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent'
+
+export interface SupportTicket {
+  id: string
+  ticket_number: string
+  client_id: string | null
+  created_by: string
+  assigned_to: string | null
+  status: TicketStatus
+  priority: TicketPriority
+  subject: string
+  description: string
+  resolution: string | null
+  closed_by: string | null
+  closed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface TicketMessage {
+  id: string
+  ticket_id: string
+  sender_id: string
+  message: string
+  is_internal: boolean
+  created_at: string
+  sender?: {
+    id: string
+    email: string
+    first_name: string | null
+    last_name: string | null
+    role?: string
+  }
+}
+
+export interface TicketWithMessages extends SupportTicket {
+  messages?: TicketMessage[]
+  message_count?: number
+  assigned?: {
+    id: string
+    email: string
+    first_name: string | null
+    last_name: string | null
+  }
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -615,4 +670,44 @@ export interface UseDashboardStatsReturn {
   loading: boolean
   error: string | null
   refetch: () => Promise<void>
+}
+
+// ============================================
+// DOCUMENT REQUEST TYPES (Shared with Admin)
+// ============================================
+
+export type DocumentType = 'medical' | 'identification' | 'financial' | 'property' | 'other'
+
+export type DocumentRequestPriority = 'low' | 'medium' | 'high' | 'urgent'
+
+export type DocumentRequestStatus = 'pending' | 'fulfilled' | 'expired' | 'cancelled'
+
+export interface DocumentRequest {
+  id: string
+  client_id: string
+  application_id: string | null
+  requested_by: string
+  document_type: DocumentType
+  priority: DocumentRequestPriority
+  status: DocumentRequestStatus
+  due_date: string | null
+  notes: string | null
+  fulfilled_at: string | null
+  fulfilled_by: string | null
+  document_id: string | null
+  created_at: string
+  updated_at: string
+  // Relaciones (simplificadas para cliente)
+  requester?: {
+    id: string
+    email: string
+    first_name: string | null
+    last_name: string | null
+  }
+  document?: {
+    id: string
+    file_name: string
+    file_url: string
+    uploaded_at: string
+  }
 }

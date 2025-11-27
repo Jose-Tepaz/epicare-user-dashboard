@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 const navigationItems = [
   { name: "Dashboard", href: "/", active: false },
   { name: "Applications", href: "/applications", active: false },
+  { name: "Documents", href: "/documents", active: false },
   { name: "My policies", href: "/policies", active: false },
   { name: "Family", href: "/family", active: false },
   { name: "Profile", href: "/profile", active: false },

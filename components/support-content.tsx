@@ -91,9 +91,18 @@ export function SupportContent() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Support Center</h1>
-        <p className="text-gray-600">Get help with your insurance applications, policies, and account</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Support Center</h1>
+          <p className="text-gray-600">Get help with your insurance applications, policies, and account</p>
+        </div>
+        <Button
+          onClick={() => (window.location.href = "/support/tickets")}
+          className="bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          <MessageCircle className="h-4 w-4 mr-2" />
+          Mis Tickets
+        </Button>
       </div>
 
       {/* Quick Contact Cards */}

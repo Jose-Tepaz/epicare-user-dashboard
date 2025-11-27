@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
@@ -23,6 +23,54 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
 
   const supabase = createClient()
+
+  // Detectar si viene de una invitación (hash fragment con access_token)
+  useEffect(() => {
+    const checkInvitation = async () => {
+      const hash = window.location.hash
+      console.log('🔍 Hash fragment detectado:', hash)
+      
+      if (hash && hash.includes('access_token')) {
+        const hashParams = new URLSearchParams(hash.substring(1))
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
+        const type = hashParams.get('type')
+        
+        console.log('🔑 Tokens detectados:', { 
+          hasAccessToken: !!accessToken, 
+          hasRefreshToken: !!refreshToken, 
+          type 
+        })
+
+        if (accessToken && refreshToken) {
+          // Establecer la sesión manualmente con los tokens del hash
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+
+          if (sessionError) {
+            console.error('❌ Error estableciendo sesión:', sessionError)
+            setError('Error al procesar la invitación. Por favor intenta nuevamente.')
+            return
+          }
+
+          console.log('✅ Sesión establecida correctamente')
+
+          // Si es una invitación, redirigir a establecer contraseña
+          if (type === 'invite') {
+            console.log('📧 Detectada invitación, redirigiendo a set-password')
+            // Limpiar el hash antes de redirigir
+            window.history.replaceState(null, '', '/login')
+            router.push('/set-password')
+            return
+          }
+        }
+      }
+    }
+
+    checkInvitation()
+  }, [router, supabase])
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -221,5 +269,20 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-orange-600 mx-auto" />
+          <p className="mt-4 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
