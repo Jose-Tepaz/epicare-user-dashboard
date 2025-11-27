@@ -101,7 +101,7 @@ export function DashboardLayout({ children, currentPage = "Dashboard" }: Dashboa
             
             {/* Back to Marketplace */}
             <Link
-              href={process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:3000'}
+              href={process.env.NEXT_PUBLIC_MARKETPLACE_URL ? `${process.env.NEXT_PUBLIC_MARKETPLACE_URL}/marketplace` : 'http://localhost:3000/marketplace'}
               className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white hover:bg-orange-400 rounded-lg transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
