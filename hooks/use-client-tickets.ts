@@ -223,6 +223,25 @@ export function useCreateTicket() {
         return null
       }
 
+      // Crear notificación para el admin cuando el cliente crea un ticket
+      if (data) {
+        try {
+          const adminApiUrl = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || 'http://localhost:3002'
+          await fetch(`${adminApiUrl}/api/notifications/ticket`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ticketId: data.id,
+              clientId: user.id,
+              type: 'new',
+              ticketNumber: data.ticket_number,
+            }),
+          })
+        } catch (err) {
+          console.error('Error creating admin notification:', err)
+        }
+      }
+
       return data
     } catch (err) {
       console.error('Unexpected error:', err)
@@ -287,7 +306,13 @@ export function useCreateTicketMessage() {
         return null
       }
 
-      // Update ticket updated_at
+      // Update ticket updated_at and get ticket info
+      const { data: ticket } = await supabase
+        .from('support_tickets')
+        .select('ticket_number')
+        .eq('id', ticketId)
+        .single()
+
       await supabase
         .from('support_tickets')
         .update({ 
@@ -295,6 +320,29 @@ export function useCreateTicketMessage() {
           status: 'open' // Reopen if client responds
         })
         .eq('id', ticketId)
+
+      // Crear notificación para el admin cuando el cliente responde a un ticket
+      if (data && ticket) {
+        try {
+          const adminApiUrl = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || 'http://localhost:3002'
+          await fetch(`${adminApiUrl}/api/notifications/ticket`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ticketId: ticketId,
+              clientId: user.id,
+              type: 'reply',
+              ticketNumber: ticket.ticket_number,
+            }),
+          }).catch((err) => {
+            console.error('Error creating admin notification:', err)
+            // No fallar el flujo principal si falla la notificación
+          })
+        } catch (err) {
+          console.error('Error creating admin notification:', err)
+          // No fallar el flujo principal si falla la notificación
+        }
+      }
 
       return data
     } catch (err) {

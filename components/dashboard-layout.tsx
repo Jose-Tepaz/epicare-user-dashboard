@@ -5,10 +5,11 @@ import type React from "react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Settings, ArrowLeft, LogOut, User } from "lucide-react"
+import { Menu, X, Settings, ArrowLeft, LogOut } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
+import { NotificationsDropdown } from "@/components/notifications-dropdown"
 
 const navigationItems = [
   { name: "Dashboard", href: "/", active: false },
@@ -16,7 +17,6 @@ const navigationItems = [
   { name: "Documents", href: "/documents", active: false },
   { name: "My policies", href: "/policies", active: false },
   { name: "Family", href: "/family", active: false },
-  { name: "Profile", href: "/profile", active: false },
   { name: "Support", href: "/support", active: false },
 ]
 
@@ -129,6 +129,7 @@ export function DashboardLayout({ children, currentPage = "Dashboard" }: Dashboa
           </Button>
           <span className="font-medium text-gray-900">{user?.email?.split('@')[0] || 'User'}</span>
           <div className="flex items-center gap-2">
+            <NotificationsDropdown />
             <Link href={process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:3000'}>
               <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
                 Buy New Insurance
@@ -141,6 +142,7 @@ export function DashboardLayout({ children, currentPage = "Dashboard" }: Dashboa
         <div className="hidden lg:flex items-center justify-between bg-white border-b border-gray-200 px-6 py-4">
           <span className="font-medium text-gray-900">{user?.email?.split('@')[0] || 'User'}</span>
           <div className="flex items-center gap-3">
+            <NotificationsDropdown />
             <Link href={process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:3000'}>
               <Button className="bg-orange-500 hover:bg-orange-600 text-white">Buy New Insurance</Button>
             </Link>

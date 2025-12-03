@@ -257,36 +257,192 @@ export function ApplicationDetailContent({ application }: ApplicationDetailConte
             <CardContent>
               <div className="space-y-4">
                 {application.coverages?.map((coverage, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <DollarSign className="h-4 w-4 text-gray-500" />
-                      <span className="font-medium text-gray-700">Plan {index + 1}</span>
+                  <div key={index} className="border rounded-lg p-4 space-y-4">
+                    {/* Header del Plan */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium text-gray-700">
+                          {coverage.metadata?.planName || coverage.plan_key}
+                        </span>
+                      </div>
+                      {coverage.carrier_name && (
+                        <Badge className="bg-blue-100 text-blue-800">
+                          {coverage.carrier_name}
+                        </Badge>
+                      )}
                     </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+
+                    {/* Información Básica */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
                         <p className="text-sm font-medium text-gray-700">Plan Key</p>
                         <p className="text-sm text-gray-900">{coverage.plan_key}</p>
-                </div>
-                <div>
+                      </div>
+                      <div>
                         <p className="text-sm font-medium text-gray-700">Monthly Premium</p>
-                        <p className="text-sm text-orange-600 font-medium">{formatCurrency(coverage.monthly_premium)}</p>
-                </div>
-                <div>
-                        <p className="text-sm font-medium text-gray-700">Effective Date</p>
-                        <p className="text-sm text-gray-900">{formatDate(coverage.effective_date)}</p>
-                </div>
-                <div>
+                        <p className="text-sm text-orange-600 font-medium">
+                          {formatCurrency(coverage.monthly_premium)}
+                        </p>
+                      </div>
+                      <div>
                         <p className="text-sm font-medium text-gray-700">Payment Frequency</p>
                         <p className="text-sm text-gray-900">{coverage.payment_frequency}</p>
                       </div>
                     </div>
+
+                    {/* Fechas */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Effective Date</p>
+                        <p className="text-sm text-gray-900">{formatDate(coverage.effective_date)}</p>
+                      </div>
+                      {coverage.termination_date && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Termination Date</p>
+                          <p className="text-sm text-gray-900">{formatDate(coverage.termination_date)}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Términos y Agente */}
+                    {(coverage.term || coverage.number_of_terms || coverage.agent_number) && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {coverage.term && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Term</p>
+                            <p className="text-sm text-gray-900">{coverage.term}</p>
+                          </div>
+                        )}
+                        {coverage.number_of_terms && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Number of Terms</p>
+                            <p className="text-sm text-gray-900">{coverage.number_of_terms}</p>
+                          </div>
+                        )}
+                        {coverage.agent_number && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Agent Number</p>
+                            <p className="text-sm text-gray-900">{coverage.agent_number}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Tipo de Producto y Cobertura */}
+                    {(coverage.metadata?.productType || coverage.metadata?.coverage) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {coverage.metadata?.productType && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Product Type</p>
+                            <p className="text-sm text-gray-900">{coverage.metadata.productType}</p>
+                          </div>
+                        )}
+                        {coverage.metadata?.coverage && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Coverage Amount</p>
+                            <p className="text-sm text-gray-900">{coverage.metadata.coverage}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Beneficios */}
+                    {coverage.metadata?.benefitsList && coverage.metadata.benefitsList.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Benefits</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {coverage.metadata.benefitsList.map((benefit: string, idx: number) => (
+                            <li key={idx} className="text-sm text-gray-900">{benefit}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Descripción de Beneficios */}
+                    {coverage.metadata?.benefitDescription && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Benefit Description</p>
+                        <p className="text-sm text-gray-600">{coverage.metadata.benefitDescription}</p>
+                      </div>
+                    )}
+
+                    {/* Riders */}
+                    {coverage.riders && Array.isArray(coverage.riders) && coverage.riders.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Riders</p>
+                        <div className="flex flex-wrap gap-2">
+                          {coverage.riders.map((rider: any, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {rider.name || rider.type || `Rider ${idx + 1}`}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Discounts */}
+                    {coverage.discounts && Array.isArray(coverage.discounts) && coverage.discounts.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Discounts</p>
+                        <div className="flex flex-wrap gap-2">
+                          {coverage.discounts.map((discount: any, idx: number) => (
+                            <Badge key={idx} variant="outline" className="bg-green-50 text-green-700 text-xs">
+                              {discount.name || discount.type || `Discount ${idx + 1}`}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Brochure Link */}
+                    {coverage.metadata?.brochureUrl && (
+                      <div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(coverage.metadata.brochureUrl, '_blank')}
+                          className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          View Plan Brochure
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Información de Pricing */}
+                    {(coverage.metadata?.originalPrice || coverage.metadata?.applicantsIncluded) && (
+                      <div className="pt-2 border-t">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {coverage.metadata?.applicantsIncluded && (
+                            <p className="text-xs text-gray-600">
+                              Applicants Included: {coverage.metadata.applicantsIncluded}
+                            </p>
+                          )}
+                          {coverage.metadata?.originalPrice && coverage.metadata.originalPrice !== coverage.monthly_premium && (
+                            <p className="text-xs text-gray-600">
+                              Original Price: {formatCurrency(coverage.metadata.originalPrice)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Loan Provision */}
+                    {coverage.is_automatic_loan_provision_opted_in !== null && coverage.is_automatic_loan_provision_opted_in !== undefined && (
+                      <div className="pt-2 border-t">
+                        <p className="text-sm text-gray-600">
+                          Automatic Loan Provision: {coverage.is_automatic_loan_provision_opted_in ? 'Yes' : 'No'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
                 
                 {application.coverages?.length === 0 && (
                   <div className="text-center py-4 text-gray-500">
                     No coverage details available
-                </div>
+                  </div>
                 )}
               </div>
             </CardContent>

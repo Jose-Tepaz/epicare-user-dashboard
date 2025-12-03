@@ -274,22 +274,38 @@ export interface Applicant {
   created_at: string
 }
 
+
 export interface Coverage {
   id: string
   application_id: string
   plan_key: string
   carrier_name?: string
+  carrier_slug?: string | null
   effective_date: string
   monthly_premium: number
   payment_frequency: string
-  term?: number
-  number_of_terms?: number
-  termination_date?: string
-  is_automatic_loan_provision_opted_in?: boolean
-  riders?: any
-  discounts?: any
-  agent_number?: string
+  term?: number | string | null
+  number_of_terms?: number | null
+  termination_date?: string | null
+  is_automatic_loan_provision_opted_in?: boolean | null
+  riders?: any[] | null
+  discounts?: any[] | null
+  agent_number?: string | null
+  metadata?: {
+    planName?: string
+    productType?: string
+    planType?: string
+    coverage?: string
+    benefitsList?: string[]
+    benefitDescription?: string
+    brochureUrl?: string
+    carrierSlug?: string
+    originalPrice?: number
+    applicantsIncluded?: number
+    priceUpdatedWithRateCart?: boolean
+  } | null
   created_at: string
+  updated_at?: string
 }
 
 export interface Beneficiary {
@@ -710,4 +726,156 @@ export interface DocumentRequest {
     file_url: string
     uploaded_at: string
   }
+}
+
+// ============================================
+// TIPOS PARA MÉTODOS DE PAGO DEL USUARIO
+// ============================================
+
+/**
+ * Marcas de tarjeta soportadas
+ */
+export type CardBrand = 'Visa' | 'Mastercard' | 'American Express' | 'Discover' | 'Unknown'
+
+/**
+ * Tipo de método de pago
+ */
+export type UserPaymentMethodType = 'credit_card' | 'debit_card' | 'ach' | 'bank_account'
+
+/**
+ * Tipo de cuenta bancaria
+ */
+export type BankAccountType = 'checking' | 'savings'
+
+/**
+ * Dirección de facturación
+ */
+export interface BillingAddress {
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+}
+
+/**
+ * Método de pago guardado del usuario
+ * Corresponde a la tabla user_payment_methods
+ */
+export interface UserPaymentMethod {
+  id: string
+  user_id: string
+  payment_method: UserPaymentMethodType
+  
+  // Datos de tarjeta (solo información visible)
+  card_last_four: string | null
+  card_brand: CardBrand | string | null
+  card_expiry_month: string | null
+  card_expiry_year: string | null
+  card_holder_name: string | null
+  
+  // Datos de cuenta bancaria (solo información visible)
+  account_last_four: string | null
+  account_type: BankAccountType | null
+  bank_name: string | null
+  account_holder_name: string | null
+  
+  // Referencia a Supabase Vault
+  vault_secret_id: string | null
+  
+  // Estado y configuración
+  nickname: string | null
+  is_default: boolean
+  is_active: boolean
+  // NOTA: billing_address eliminada - se usa la dirección de la tabla users
+  
+  // Timestamps
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * Datos del formulario para agregar método de pago
+ */
+export interface PaymentMethodFormData {
+  paymentMethodType: UserPaymentMethodType
+  nickname?: string
+  
+  // Datos de tarjeta
+  cardNumber?: string
+  expiryMonth?: string
+  expiryYear?: string
+  cvv?: string
+  cardHolderName?: string
+  
+  // Datos de cuenta bancaria
+  accountNumber?: string
+  routingNumber?: string
+  accountType?: BankAccountType
+  bankName?: string
+  accountHolderName?: string
+  
+  // Opciones
+  setAsDefault?: boolean
+  saveForFuture?: boolean // Para uso en Enrollment
+}
+
+/**
+ * Respuesta de API para crear método de pago
+ */
+export interface CreatePaymentMethodResponse {
+  success: boolean
+  paymentMethod?: UserPaymentMethod
+  error?: string
+}
+
+/**
+ * Datos sensibles almacenados en Vault (solo para referencia, nunca expuestos)
+ */
+export interface VaultCardData {
+  cardNumber: string
+  cvv: string
+}
+
+export interface VaultBankData {
+  accountNumber: string
+  routingNumber: string
+}
+
+// ============================================
+// TIPOS PARA NOTIFICACIONES
+// ============================================
+
+/**
+ * Tipos de notificaciones disponibles
+ */
+export type NotificationType = 'application' | 'document' | 'support'
+
+/**
+ * Metadata adicional para notificaciones
+ */
+export interface NotificationMetadata {
+  application_id?: string
+  document_id?: string
+  document_request_id?: string
+  ticket_id?: string
+  ticket_message_id?: string
+  status?: string
+  previous_status?: string
+}
+
+/**
+ * Notificación del sistema
+ */
+export interface Notification {
+  id: string
+  user_id: string
+  type: NotificationType
+  title: string
+  message: string
+  link_url: string | null
+  metadata: NotificationMetadata | null
+  is_read: boolean
+  read_at: string | null
+  created_at: string
 }

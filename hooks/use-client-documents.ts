@@ -114,6 +114,28 @@ export function useUploadClientDocument() {
 
       if (dbError) throw dbError
 
+      // Crear notificación para el admin cuando el cliente envía un documento
+      if (document) {
+        try {
+          const adminApiUrl = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || 'http://localhost:3002'
+          await fetch(`${adminApiUrl}/api/notifications/document`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              documentId: document.id,
+              clientId: user.id,
+              documentName: document.file_name,
+            }),
+          }).catch((err) => {
+            console.error('Error creating admin notification:', err)
+            // No fallar el flujo principal si falla la notificación
+          })
+        } catch (err) {
+          console.error('Error creating admin notification:', err)
+          // No fallar el flujo principal si falla la notificación
+        }
+      }
+
       return document
     } catch (err) {
       console.error('Error uploading document:', err)
