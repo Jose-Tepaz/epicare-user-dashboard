@@ -118,7 +118,9 @@ export function useUploadClientDocument() {
       if (document) {
         try {
           const adminApiUrl = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || 'http://localhost:3002'
-          await fetch(`${adminApiUrl}/api/notifications/document`, {
+          console.log('[Notification] Admin API URL:', adminApiUrl)
+          console.log('[Notification] Sending document upload notification for document:', document.id)
+          const notifResponse = await fetch(`${adminApiUrl}/api/notifications/document`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -126,12 +128,12 @@ export function useUploadClientDocument() {
               clientId: user.id,
               documentName: document.file_name,
             }),
-          }).catch((err) => {
-            console.error('Error creating admin notification:', err)
-            // No fallar el flujo principal si falla la notificación
           })
+          console.log('[Notification] Response status:', notifResponse.status)
+          const notifData = await notifResponse.json().catch(() => ({}))
+          console.log('[Notification] Response data:', notifData)
         } catch (err) {
-          console.error('Error creating admin notification:', err)
+          console.error('[Notification] Error creating admin notification:', err)
           // No fallar el flujo principal si falla la notificación
         }
       }

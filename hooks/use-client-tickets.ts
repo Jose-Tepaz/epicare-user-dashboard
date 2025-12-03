@@ -227,7 +227,9 @@ export function useCreateTicket() {
       if (data) {
         try {
           const adminApiUrl = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || 'http://localhost:3002'
-          await fetch(`${adminApiUrl}/api/notifications/ticket`, {
+          console.log('[Notification] Admin API URL:', adminApiUrl)
+          console.log('[Notification] Sending new ticket notification for ticket:', data.id)
+          const notifResponse = await fetch(`${adminApiUrl}/api/notifications/ticket`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -237,8 +239,11 @@ export function useCreateTicket() {
               ticketNumber: data.ticket_number,
             }),
           })
+          console.log('[Notification] Response status:', notifResponse.status)
+          const notifData = await notifResponse.json().catch(() => ({}))
+          console.log('[Notification] Response data:', notifData)
         } catch (err) {
-          console.error('Error creating admin notification:', err)
+          console.error('[Notification] Error creating admin notification:', err)
         }
       }
 
@@ -325,7 +330,9 @@ export function useCreateTicketMessage() {
       if (data && ticket) {
         try {
           const adminApiUrl = process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || 'http://localhost:3002'
-          await fetch(`${adminApiUrl}/api/notifications/ticket`, {
+          console.log('[Notification] Admin API URL:', adminApiUrl)
+          console.log('[Notification] Sending reply notification for ticket:', ticketId)
+          const notifResponse = await fetch(`${adminApiUrl}/api/notifications/ticket`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -334,12 +341,12 @@ export function useCreateTicketMessage() {
               type: 'reply',
               ticketNumber: ticket.ticket_number,
             }),
-          }).catch((err) => {
-            console.error('Error creating admin notification:', err)
-            // No fallar el flujo principal si falla la notificación
           })
+          console.log('[Notification] Response status:', notifResponse.status)
+          const notifData = await notifResponse.json().catch(() => ({}))
+          console.log('[Notification] Response data:', notifData)
         } catch (err) {
-          console.error('Error creating admin notification:', err)
+          console.error('[Notification] Error creating admin notification:', err)
           // No fallar el flujo principal si falla la notificación
         }
       }
