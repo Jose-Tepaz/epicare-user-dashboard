@@ -48,8 +48,7 @@ export function useApplications(userId: string | null): UseApplicationsReturn {
           application_payment_transactions(*),
           application_validation_errors(*),
           application_status_history(*),
-          insurance_companies(name, slug, logo_url),
-          agents(name, agent_code)
+          insurance_companies(name, slug, logo_url)
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
@@ -96,7 +95,7 @@ export function useApplication(applicationId: string | null): UseApplicationRetu
       setLoading(true)
       setError(null)
 
-      const { data, error: fetchError } = await supabase
+      const { data, error: fetchError} = await supabase
         .from('applications')
         .select(`
           *,
@@ -107,8 +106,7 @@ export function useApplication(applicationId: string | null): UseApplicationRetu
           application_payment_transactions(*),
           application_validation_errors(*),
           application_status_history(*),
-          insurance_companies(name, slug, logo_url),
-          agents(name, agent_code)
+          insurance_companies(name, slug, logo_url)
         `)
         .eq('id', applicationId)
         .single()

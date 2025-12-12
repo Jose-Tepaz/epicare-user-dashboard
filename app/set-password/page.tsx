@@ -128,6 +128,12 @@ export default function SetPasswordPage() {
         throw updateError
       }
 
+      // Marcar que el usuario ha establecido su contraseña (invitación completada)
+      await supabase
+        .from('users')
+        .update({ password_set: true })
+        .eq('id', user.id)
+
       // Verificar si el perfil ya está completado
       try {
         const { data: profileData, error: profileError } = await supabase
